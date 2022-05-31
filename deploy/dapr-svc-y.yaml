@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dapr-svc-y
+  labels:
+    app: dapr-svc-y
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dapr-svc-y
+  template:
+    metadata:
+      labels:
+        app: dapr-svc-y
+      annotations:
+        prometheus.io/path: "/actuator/prometheus"
+        prometheus.io/port: "8080"
+        prometheus.io/scrape: "true"
+        # dapr
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "svc-y"
+        dapr.io/enable-api-logging: "true"
+    spec:
+      containers:
+        - name: springboot-svc-y
+          image: docker.io/youngwookim/springboot-svc-y:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080

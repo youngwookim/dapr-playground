@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dapr-demo
+  labels:
+    app: dapr-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dapr-demo
+  template:
+    metadata:
+      labels:
+        app: dapr-demo
+      annotations:
+        prometheus.io/path: "/actuator/prometheus"
+        prometheus.io/port: "8080"
+        prometheus.io/scrape: "true"
+        # dapr
+        # https://docs.dapr.io/reference/arguments-annotations-overview/
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "dapr-demo"
+        dapr.io/app-port: "8080"
+        dapr.io/sidecar-listen-addresses: "0.0.0.0"
+        dapr.io/enable-api-logging: "true"
+        dapr.io/log-level: "debug"
+        #dapr.io/config: myconfig
+    spec:
+      containers:
+        - name: springboot-demo
+          image: docker.io/youngwookim/springboot-demo:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+---
+# for debug
+apiVersion: v1
+kind: Service
+metadata:
+  name: dapr-demo-dapr-svc
+spec:
+  ports:
+  - name: http
+    port: 80
+    targetPort: 3500
+    protocol: TCP
+  selector:
+    app: dapr-demo
