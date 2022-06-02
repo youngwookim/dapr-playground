@@ -97,6 +97,10 @@ try (DaprClient client = (new DaprClientBuilder()).build()) {
 
 ### Building blocks
 
+![https://docs.microsoft.com/en-us/dotnet/architecture/dapr-for-net-developers/media/dapr-at-20000-feet/building-blocks.png](https://docs.microsoft.com/en-us/dotnet/architecture/dapr-for-net-developers/media/dapr-at-20000-feet/building-blocks.png)
+
+System Architecture for PoC
+
 ![](dapr-playground.png)
 
 ### Service Invocation
@@ -147,6 +151,10 @@ Prerequisites:
 - [Kafka](kafka/)
 - [Redis](redis/)
 
+Pub/Sub flow with Dapr
+
+![https://docs.microsoft.com/en-us/dotnet/architecture/dapr-for-net-developers/media/publish-subscribe/pub-sub-flow.png](https://docs.microsoft.com/en-us/dotnet/architecture/dapr-for-net-developers/media/publish-subscribe/pub-sub-flow.png)
+
 A component "kafka-pubsub":
 ```
 apiVersion: dapr.io/v1alpha1
@@ -180,16 +188,35 @@ $ curl -X POST http://localhost:{DAPR_HTTP_PORT}/v1.0/publish/kafka-pubsub/test 
 
 ```
 
+Subscribe to topics
+```
+Dapr provides two methods by which you can subscribe to topics:
+
+Declaratively, where subscriptions are defined in an external file.
+
+E.g., 
+- https://github.com/dapr/samples/blob/master/pub-sub-routing/components/subscription.yaml
+- https://docs.dapr.io/developing-applications/building-blocks/pubsub/howto-publish-subscribe/
+
+  @PostMapping(path = "/checkout")
+  public Mono<Void> handleMessage(@RequestBody(required = false) CloudEvent<String> cloudEvent) {
+    return Mono.fromRunnable(() -> {
+      try {
+       // Do something...
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+    });
+
+Programmatically, where subscriptions are defined in user code.
+
+E.g., https://github.com/dapr/java-sdk/blob/master/examples/src/main/java/io/dapr/examples/pubsub/http/SubscriberController.java
+
+```
+
 ### Binding
 
-1. Kafka Input Binding & Output Binding
-
-![](https://docs.dapr.io/images/building-block-input-binding-example.png)
-
-Trigger? https://docs.dapr.io/developing-applications/building-blocks/bindings/howto-triggers/
-```
-If using HTTP, you need to listen on a POST endpoint with the name of the binding as specified in metadata.name in the file.
-```
+![](https://docs.microsoft.com/en-us/dotnet/architecture/dapr-for-net-developers/media/bindings/bindings-architecture.png)
 
 Specifying a custom route?
 ```
@@ -254,6 +281,9 @@ https://docs.dapr.io/operations/monitoring/
 ## Refs.
 
 - https://dapr.io/
+- https://docs.microsoft.com/en-us/dotnet/architecture/dapr-for-net-developers/
 - https://blog.devgenius.io/sneak-peek-into-the-dapr-distributed-application-runtime-world-9dca2b76584b
 - https://blog.devgenius.io/sneak-peek-into-the-dapr-distributed-application-runtime-world-9dca2b76584b#_Running_Example
 - https://github.com/quarkiverse/quarkus-dapr
+- [Microservice Architecture](https://microservices.io/index.html)
+- https://charliedigital.com/2021/07/07/dapr-and-azure-functions-part-5a-deploying-to-aws-with-ecr-and-eks-fargate/
