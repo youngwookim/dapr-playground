@@ -277,6 +277,8 @@ https://docs.dapr.io/operations/monitoring/
   - https://www.sumologickorea.com/blog/microservices-vs-serverless-architecture/
   - https://www.techmagic.co/blog/serverless-vs-microservices-which-architecture-to-choose/
   - [Containers + Dapr vs Functions as a Service](https://www.youtube.com/watch?v=Rp4orZYdqSw)
+- Dapr vs. Service Meshes(Linkerd, Istio...)
+  - https://docs.dapr.io/concepts/service-mesh/
 
 ## Refs.
 
