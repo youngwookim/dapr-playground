@@ -44,8 +44,8 @@ public class DemoController {
     public Mono<String> pubMessage(@RequestBody String message) {
         return webClient.post()
                 .uri(URI.create("http://localhost:3500/v1.0/publish/kafka-pubsub/test"))
-                .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-                .body(Mono.just(message), String.class).retrieve().bodyToMono(String.class);
+                .contentType(MediaType.APPLICATION_JSON).body(Mono.just(message), String.class)
+                .retrieve().bodyToMono(String.class);
     }
 
 }
