@@ -2,13 +2,11 @@
 
 Dapr?
 
-```
-Dapr is a portable, event-driven runtime that makes it easy for any developer to build resilient, stateless and stateful applications that run on the cloud and edge and embraces the diversity of languages and developer frameworks. Leveraging the benefits of a sidecar architecture, Dapr helps you tackle the challenges that come with building microservices and keeps your code platform agnostic.
-```
+https://dapr.io
+> Dapr is a portable, event-driven runtime that makes it easy for any developer to build resilient, stateless and stateful applications that run on the cloud and edge and embraces the diversity of languages and developer frameworks. Leveraging the benefits of a sidecar architecture, Dapr helps you tackle the challenges that come with building microservices and keeps your code platform agnostic.
+
 
 ![](https://docs.dapr.io/images/overview.png)
-
-https://dapr.io
 
 ## Dapr CLI
 
@@ -16,7 +14,7 @@ https://dapr.io
 # https://docs.dapr.io/getting-started/install-dapr-cli/
 # Mac (arm64)
 $ arch -arm64 brew install dapr/tap/dapr-cli
-$ dapr
+$ dapr --version
 
 (snip)
 
@@ -38,7 +36,15 @@ $ helm upgrade --install dapr dapr/dapr \
 --namespace dapr-system \
 --create-namespace \
 --set global.ha.enabled=true \
---set global.logAsJson=true
+--set global.logAsJson=true \
+--devel
+
+# local (e.g., k3s)
+$ helm upgrade --install dapr dapr/dapr \
+--namespace dapr-system \
+--create-namespace \
+--set global.logAsJson=true \
+--devel
 
 ```
 
@@ -50,6 +56,65 @@ $ helm install keda kedacore/keda --namespace keda --create-namespace
 ```
 
 ![](https://docs.dapr.io/images/overview_kubernetes.png)
+
+## Configuration
+
+https://docs.dapr.io/operations/configuration/
+
+- Control plane Configuration
+```
+kubectl edit configurations/daprsystem --namespace dapr-system
+
+-- Once the changes are saved, perform a rolling update to the control plane:
+kubectl rollout restart deploy/dapr-sentry -n dapr-system
+kubectl rollout restart deploy/dapr-operator -n dapr-system
+kubectl rollout restart statefulsets/dapr-placement-server -n dapr-system
+```
+
+- Application Configration
+```
+  annotations:
+    dapr.io/enabled: "true"
+    dapr.io/app-id: "nodeapp"
+    dapr.io/app-port: "3000"
+    dapr.io/config: "myappconfig"
+
+# Sidecar configuration
+
+apiVersion: dapr.io/v1alpha1
+kind: Configuration
+metadata:
+  name: myappconfig
+  namespace: default
+spec:
+  tracing:
+    samplingRate: "1"
+  httpPipeline:
+    handlers:
+      - name: oauth2
+        type: middleware.http.oauth2
+  secrets:
+    scopes:
+      - storeName: localstore
+        defaultAccess: allow
+        deniedSecrets: ["redis-password"]
+  accessControl:
+    defaultAction: deny
+    trustDomain: "public"
+    policies:
+    - appId: app1
+      defaultAction: deny
+      trustDomain: 'public'
+      namespace: "default"
+      operations:
+      - name: /op1
+        httpVerb: ['POST', 'GET']
+        action: deny
+      - name: /op2/*
+        httpVerb: ["*"]
+        action: allow
+```
+
 
 ## Dapr Dashboard
 
@@ -263,6 +328,20 @@ https://docs.dapr.io/operations/monitoring/
 
 ![](https://docs.dapr.io/images/open-telemetry-collector.png)
 
+https://docs.dapr.io/operations/monitoring/tracing/open-telemetry-collector/
+
+## Operations
+
+Updating Components:
+```
+# Kubernetes
+When running in Kubernetes, the process of updating a component involves two steps:
+
+1. Applying the new component YAML to the desired namespace
+2. Performing a rollout restart operation on your deployments to pick up the latest component
+
+```
+
 ## FAQs
 
 - Pub-Sub vs. Binding ??
@@ -289,3 +368,5 @@ https://docs.dapr.io/operations/monitoring/
 - https://github.com/quarkiverse/quarkus-dapr
 - [Microservice Architecture](https://microservices.io/index.html)
 - https://charliedigital.com/2021/07/07/dapr-and-azure-functions-part-5a-deploying-to-aws-with-ecr-and-eks-fargate/
+- https://github.com/Azure/dapr-java-workshop
+- https://code.benco.io/dapr-store/
