@@ -12,7 +12,8 @@ https://dapr.io
 
 ```
 # https://docs.dapr.io/getting-started/install-dapr-cli/
-# Mac (arm64)
+
+# Apple M1 (aarch64)
 $ arch -arm64 brew install dapr/tap/dapr-cli
 $ dapr --version
 
@@ -20,31 +21,50 @@ $ dapr --version
 
 ```
 
+## Dapr on local machine (self-hosted)
+
+Prerequisite:
+- Docker
+- Dapr CLI
+- Helm
+
+Self-hosted Dapr:
+```
+$ dapr init
+or
+$ dapr init --runtime-version 1.8.0
+
+$ ls -als ${HOME}/.dapr/components/
+
+```
+
+Local Env. with kubernetes (Apple M1, k3s):
+```
+$ dapr init -k
+
+```
+
 ## Dapr on Kubernetes
+
+Prerequisites:
+- kubectl
+- Helm
 
 ```
 # Via CLI
 $ dapr init --kubernetes --wait
 
-# Via Helm
-helm repo add dapr https://dapr.github.io/helm-charts/
-helm repo update
+# Via Helm (advanced)
+$ helm repo add dapr https://dapr.github.io/helm-charts/
+$ helm repo update
 # See which chart versions are available
-helm search repo dapr --devel --versions
+$ helm search repo dapr --devel --versions
 
 $ helm upgrade --install dapr dapr/dapr \
 --namespace dapr-system \
 --create-namespace \
 --set global.ha.enabled=true \
---set global.logAsJson=true \
---devel
-
-# local (e.g., k3s)
-$ helm upgrade --install dapr dapr/dapr \
---namespace dapr-system \
---create-namespace \
---set global.logAsJson=true \
---devel
+--set global.logAsJson=true
 
 ```
 
@@ -53,6 +73,7 @@ $ helm upgrade --install dapr dapr/dapr \
 $ helm repo add kedacore https://kedacore.github.io/charts
 $ helm repo update
 $ helm install keda kedacore/keda --namespace keda --create-namespace
+
 ```
 
 ![](https://docs.dapr.io/images/overview_kubernetes.png)
@@ -71,7 +92,7 @@ kubectl rollout restart deploy/dapr-operator -n dapr-system
 kubectl rollout restart statefulsets/dapr-placement-server -n dapr-system
 ```
 
-- Application Configration
+- Application Configuration
 ```
   annotations:
     dapr.io/enabled: "true"
@@ -113,8 +134,8 @@ spec:
       - name: /op2/*
         httpVerb: ["*"]
         action: allow
-```
 
+```
 
 ## Dapr Dashboard
 
@@ -142,7 +163,7 @@ $ kubectl apply -f ./deploy/python.yaml
 
 ## Developing applications
 
-### HTTP / SDKs
+### HTTP or GRPC / SDKs
 
 TBD
 
@@ -210,6 +231,9 @@ curl -X GET http://localhost:{DAPR_HTTP_PORT}/v1.0/invoke/dapr-demo/method/world
 
 ```
 
+- https://github.com/dapr/dapr/issues/2342
+- https://github.com/wostzone/echo-dapr
+
 ### Publish & subscribe
 
 Prerequisites:
@@ -246,7 +270,7 @@ kafka-pubsub    172m
 
 ```
 
-Publishing a message to Kafka:
+Publishing a message to Kafka(via HTTP):
 ```
 # pubsub.kafka
 $ curl -X POST http://localhost:{DAPR_HTTP_PORT}/v1.0/publish/kafka-pubsub/test -H "Content-Type: application/json" -d '{"orderId": "100"}'
@@ -281,6 +305,9 @@ E.g., https://github.com/dapr/java-sdk/blob/master/examples/src/main/java/io/dap
 
 ### Binding
 
+Supported Bindings:
+- https://docs.dapr.io/reference/components-reference/supported-bindings/
+
 ![](https://docs.microsoft.com/en-us/dotnet/architecture/dapr-for-net-developers/media/bindings/bindings-architecture.png)
 
 Specifying a custom route?
@@ -294,6 +321,9 @@ spec:
   - name: route
     value: /onevent
 ```
+
+Kafka Binding:
+- https://docs.dapr.io/reference/components-reference/supported-bindings/kafka/
 
 ## Dapr in production on Kubernetes
 
@@ -346,9 +376,8 @@ When running in Kubernetes, the process of updating a component involves two ste
 
 - Pub-Sub vs. Binding ??
   - https://github.com/dapr/quickstarts/issues/404
-  ```
-  In general, pub-sub is for dapr-to-dapr communication. Bindings are for integration with external services.
-  ```
+  > In general, pub-sub is for dapr-to-dapr communication. Bindings are for integration with external services.
+  
 - dapr service on Kubernetes ??
   - https://github.com/dapr/dapr/issues/3794
 - Serverless(Function or FaaS) vs. Microservices
@@ -370,3 +399,4 @@ When running in Kubernetes, the process of updating a component involves two ste
 - https://charliedigital.com/2021/07/07/dapr-and-azure-functions-part-5a-deploying-to-aws-with-ecr-and-eks-fargate/
 - https://github.com/Azure/dapr-java-workshop
 - https://code.benco.io/dapr-store/
+- https://www.youtube.com/watch?v=8age_72M_NE&t=1219s

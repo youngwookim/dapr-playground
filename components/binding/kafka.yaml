@@ -9,7 +9,7 @@ spec:
   # https://docs.dapr.io/reference/components-reference/supported-bindings/kafka/
   # event handler endpoint
   - name: route
-    value: /onevent
+    value: /onEvent
   - name: brokers
     value: "my-cluster-kafka-bootstrap.kafka.svc.cluster.local:9092"
   # consumer configuration: topic and consumer group
