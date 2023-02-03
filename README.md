@@ -32,7 +32,7 @@ Self-hosted Dapr:
 ```
 $ dapr init
 or
-$ dapr init --runtime-version 1.8.0
+$ dapr init --runtime-version 1.8.2
 
 $ ls -als ${HOME}/.dapr/components/
 
